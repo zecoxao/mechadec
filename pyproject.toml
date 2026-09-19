@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mechadec"
+version = "0.1.0"
+description = "Decompiler, IDA processor module and ROM loader for the Sony SPC970 (PlayStation 2 MechaCon)"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+authors = [{ name = "zecoxao" }]
+keywords = ["spc970", "mechacon", "ps2", "playstation", "sony", "decompiler", "ida", "reverse-engineering"]
+
+[project.urls]
+Homepage = "https://github.com/zecoxao/mechadec"
+
+[project.scripts]
+mechadec = "mechadec.cli:main"
+
+[tool.setuptools]
+packages = ["mechadec"]
+py-modules = ["mechadec_plugin"]
