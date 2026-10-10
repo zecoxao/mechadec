@@ -13,7 +13,12 @@ module, and equally on one where the ROM was loaded as a plain binary blob at
 0xFC0000.
 
     Ctrl-Shift-S   decompile the function under the cursor
-    Ctrl-F5        decompile every function in the database
+    Ctrl-Shift-A   decompile every function in the database
+    Ctrl-Shift-M   apply MechaCon names
+
+mechadec uses Ctrl-Shift-A (not the family's shared Ctrl-F5) for "decompile
+all", so it never competes with allegrexdec for Ctrl-F5 on a database where both
+could load.
 """
 
 import os
@@ -31,14 +36,14 @@ if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 
 HOTKEY_ONE = "Ctrl-Shift-S"
-HOTKEY_ALL = "Ctrl-F5"
+HOTKEY_ALL = "Ctrl-Shift-A"   # NOT Ctrl-F5: that stays with allegrexdec / the family
 
 _views = []
 _hotkeys = []
 
 # Processors owned by other members of the decompiler family.  mechadec runs on
-# the SPC970 processor module or a raw ROM blob (metapc), so it must step aside
-# on these databases -- otherwise it would claim the shared Ctrl-F5 hotkey from
+# the SPC970 processor module or a raw ROM blob (metapc), so it also steps aside
+# on these databases -- so its per-plugin Ctrl-Shift-S does not compete with
 # allegrexdec (MIPS), f00ddec (MeP), rl78dec (RL78) or spudec (SPU).
 _FOREIGN_CPUS = ("mips", "psp", "allegrex", "mep", "rl78", "spu", "r5900",
                  "r3900", "dalvik", "arm", "ppc")
