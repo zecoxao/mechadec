@@ -13,12 +13,7 @@ module, and equally on one where the ROM was loaded as a plain binary blob at
 0xFC0000.
 
     Ctrl-Shift-S   decompile the function under the cursor
-    Ctrl-Shift-A   decompile every function in the database
-    Ctrl-Shift-M   apply MechaCon names
-
-mechadec uses Ctrl-Shift-A (not the family's shared Ctrl-F5) for "decompile
-all", so it never competes with allegrexdec for Ctrl-F5 on a database where both
-could load.
+    Ctrl-F5        decompile every function in the database
 """
 
 import os
@@ -27,7 +22,6 @@ import time
 import traceback
 
 import ida_idaapi
-import ida_idp
 import ida_kernwin
 import ida_funcs
 
@@ -36,25 +30,10 @@ if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 
 HOTKEY_ONE = "Ctrl-Shift-S"
-HOTKEY_ALL = "Ctrl-Shift-A"   # NOT Ctrl-F5: that stays with allegrexdec / the family
+HOTKEY_ALL = "Ctrl-F5"
 
 _views = []
 _hotkeys = []
-
-# Processors owned by other members of the decompiler family.  mechadec runs on
-# the SPC970 processor module or a raw ROM blob (metapc), so it also steps aside
-# on these databases -- so its per-plugin Ctrl-Shift-S does not compete with
-# allegrexdec (MIPS), f00ddec (MeP), rl78dec (RL78) or spudec (SPU).
-_FOREIGN_CPUS = ("mips", "psp", "allegrex", "mep", "rl78", "spu", "r5900",
-                 "r3900", "dalvik", "arm", "ppc")
-
-
-def _is_mechacon():
-    try:
-        n = ida_idp.get_idp_name().lower()
-    except Exception:
-        return True
-    return not any(k in n for k in _FOREIGN_CPUS)
 
 
 def _in_rom():
@@ -143,8 +122,6 @@ class MechaDecPlugin(ida_idaapi.plugin_t):
     wanted_hotkey = HOTKEY_ONE
 
     def init(self):
-        if not _is_mechacon():
-            return ida_idaapi.PLUGIN_SKIP
         ctx = ida_kernwin.add_hotkey(HOTKEY_ALL, _run_all)
         if ctx is not None:
             _hotkeys.append(ctx)
