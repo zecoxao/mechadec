@@ -22,6 +22,7 @@ import time
 import traceback
 
 import ida_idaapi
+import ida_idp
 import ida_kernwin
 import ida_funcs
 
@@ -34,6 +35,21 @@ HOTKEY_ALL = "Ctrl-F5"
 
 _views = []
 _hotkeys = []
+
+# Processors owned by other members of the decompiler family.  mechadec runs on
+# the SPC970 processor module or a raw ROM blob (metapc), so it must step aside
+# on these databases -- otherwise it would claim the shared Ctrl-F5 hotkey from
+# allegrexdec (MIPS), f00ddec (MeP), rl78dec (RL78) or spudec (SPU).
+_FOREIGN_CPUS = ("mips", "psp", "allegrex", "mep", "rl78", "spu", "r5900",
+                 "r3900", "dalvik", "arm", "ppc")
+
+
+def _is_mechacon():
+    try:
+        n = ida_idp.get_idp_name().lower()
+    except Exception:
+        return True
+    return not any(k in n for k in _FOREIGN_CPUS)
 
 
 def _in_rom():
@@ -122,6 +138,8 @@ class MechaDecPlugin(ida_idaapi.plugin_t):
     wanted_hotkey = HOTKEY_ONE
 
     def init(self):
+        if not _is_mechacon():
+            return ida_idaapi.PLUGIN_SKIP
         ctx = ida_kernwin.add_hotkey(HOTKEY_ALL, _run_all)
         if ctx is not None:
             _hotkeys.append(ctx)
